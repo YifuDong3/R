@@ -1,0 +1,210 @@
+---
+title: "Exercise in R for Data Science"
+author: "Yifu Dong"
+date: "September 23, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(nycflights13)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 3.5.1 Exercises
+###2
+What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=drv,y=cyl))
+```
+
+
+
+Solution: 
+```{r}
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ, y = hwy))+
+  facet_grid(drv~cyl)
+```
+
+There are some empty cells in this plot. Empty cells imply that there were no rows with that combination of values in the original dataset. For example, the plot with drv=4 and cyl=r is empty, thus it means that in the original dataset we don't have such kind of data whose drv=4 while cyl=r.
+And it is related to the plot given above since the plot above provides the coordinate between drv and cyl. Hence, the empty coordinate is correspondingly the empty cells in a plot with facet_grid(drv~cyl)
+
+
+
+###3
+What plots does the following code make? What does $.$ do?
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy))+
+  facet_grid(drv~.)
+
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  facet_grid(.~cyl)
+```
+
+
+
+Solution:
+We can know from the plots above that . is a placeholder so that we can have a facet in only one dimension which is given by drv or cyl.
+
+
+
+##3.6.1 Exercise
+###6
+Recreate the R code necessary to generate the following graphs
+
+
+Solution: 
+
+plot1:
+```{r}
+
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  geom_smooth(mapping=aes(x=displ,y=hwy),se=FALSE)
+  
+```
+
+
+
+plot2:
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  geom_smooth(mapping=aes(x=displ,y=hwy,group=drv),se=FALSE)
+```
+
+
+
+plot3:
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=drv))+
+  geom_smooth(mapping = aes(x=displ,y=hwy,color=drv), se=FALSE)
+```
+
+
+
+plot4:
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=drv))+
+  geom_smooth(mapping = aes(x=displ,y=hwy), se=FALSE)
+```
+
+
+
+plot5:
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=drv))+
+  geom_smooth(mapping = aes(x=displ,y=hwy,linetype=drv), se=FALSE)
+```
+
+
+
+plot6:
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=drv))
+```
+
+
+
+
+##5.2.4 Exercise
+```{r}
+library("nycflights13")
+```
+
+###1
+Find all flights that:
+
+a.Had an arrival delay of two or more hours
+```{r}
+filter(flights,dep_delay>=2)
+```
+
+
+b.Flew to Houston (IAH or HOU)
+```{r}
+filter(flights,dest=='IAH'|dest=='HOU')
+```
+
+
+c.Were operated by United, American, or Delta
+```{r}
+filter(flights, carrier == 'UA' | carrier == 'AA' | carrier == 'DL')
+```
+
+
+d.Departed in summer (July, August, and September)
+```{r}
+filter(flights, month >= 7 & month <= 9)
+```
+
+
+e.Arrived more than two hours late, but didn’t leave late
+```{r}
+filter(flights, arr_delay > 120, dep_delay <= 0)
+```
+
+
+f.Were delayed by at least an hour, but made up over 30 minutes in flight
+```{r}
+filter(flights, dep_delay >= 60, dep_delay-arr_delay > 30)
+```
+
+
+g.Departed between midnight and 6am (inclusive)
+```{r}
+filter(flights, dep_time <=600 | dep_time == 2400)
+```
+
+
+
+###2
+Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
+
+
+between() is a way of testing two inequalities at once,
+```{r}
+filter(flights, between(month, 5, 10))
+```
+
+
+
+###3
+How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
+
+
+```{r}
+summary(flights)
+```
+8255 flights have a missing dep_time.
+Also from the table above, we can find that 8255 have a missing dep_delay,9430 have a missing arr_delay, and 9430 have a missing air_time, 8713 have a missing arr_time.
+This represents that there are more than 8000 flights didn't arrive on time.
+
+
+###4
+
+Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)
+
+NA ^ 0 not missing because anything to the power of 0 is 1, so although we didn't know the original value, we know the value of NA^0
+
+With NA | TRUE, since the | operator returns TRUE if either of the terms are true, the whole expression returns true because the right half returns true. 
+
+For the next example, since FALSE is false, and that's enough for FALSE & NA to be evaluated false.
+
+As for NA*0:
+```{r}
+NA*0
+```
+Since we don't know the true value of NA, it can be 0, or Inf, or 100. So the output is NA.
+
+
+
